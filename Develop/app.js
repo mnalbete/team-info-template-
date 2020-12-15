@@ -9,9 +9,133 @@ const OUTPUT_DIR = path.resolve(__dirname, "output");
 const outputPath = path.join(OUTPUT_DIR, "team.html");
 
 const render = require("./lib/htmlRenderer");
+const { fetchAsyncQuestionPropertyQuestionProperty } = require("inquirer/lib/utils/utils");
+
+const employeeList = [];
 
 
-// Write code to use inquirer to gather information about the development team members,
+// manager questions
+
+function askUserforManagerInfo() {
+
+    return inquirer.prompt([{
+        type: "input",
+        message: "What is your name?",
+        name: "name",
+    }, {
+        type: "input",
+        message: "What is your ID?",
+        name: "id",
+    }, {
+        type: "input",
+        message: "What is your email?",
+        name: "email",
+    }, {
+        type: "input",
+        message: "What is your office number?",
+        name: "officeNumber",
+    }]).then((managerData) => {
+
+        const newManager = new Manager(managerData.name, managerData.id, managerData.email, managerData.officeNumber);
+        employeeList.push(newManager);
+        askUserforEmployeeType();
+
+    });
+
+}
+
+//employee information
+function askUserforEmployeeType() {
+
+    return inquirer.prompt([{
+        type: "list",
+        name: "newEmployee",
+        message: "Which type of team member would you like to add?",
+        choices: [{ name: "Engineer", value: 0 }, { name: "Intern", value: 1 }, { name: "I don't want to add any more team members", value: 2 }],
+    }]).then((newEmployeeType) => {
+        
+        if (newEmployeeType.newEmployee === 0) {
+            askUserForEngineerInfo();
+          
+        } else if (newEmployeeType.newEmployee === 1) {
+            askUserforInternInfo();
+           
+        } else {
+            createHtmlFile();
+        }
+    });
+}
+
+//Engineer information
+function askUserForEngineerInfo() {
+
+    return inquirer.prompt([{
+        type: "input",
+        message: "What is your name?",
+        name: "name",
+    }, {
+        type: "input",
+        message: "What is your ID?",
+        name: "id",
+    }, {
+        type: "input",
+        message: "What is your email?",
+        name: "email",
+    }, {
+        type: "input",
+        message: "What is your GitHub username?",
+        name: "gitHub",
+    }]).then((engineerData) => {
+
+        const newEngineer = new Engineer(engineerData.name, engineerData.id, engineerData.email, engineerData.gitHub);
+        employeeList.push(newEngineer);
+        askUserforEmployeeType();
+
+    });
+
+}
+// intern information
+function askUserforInternInfo() {
+
+    return inquirer.prompt([{
+        type: "input",
+        message: "What is your name?",
+        name: "name",
+    }, {
+        type: "input",
+        message: "What is your ID?",
+        name: "id",
+    }, {
+        type: "input",
+        message: "What is your email?",
+        name: "email",
+    }, {
+        type: "input",
+        message: "Where did your school that you go to?",
+        name: "school",
+    }]).then((internData) => {
+
+        const newIntern = new Intern(internData.name, internData.id, internData.email, internData.school);
+        employeeList.push(newIntern);
+        askUserforEmployeeType();
+    });
+
+}
+
+function createHtmlFile() {
+
+    const htmlContent = render(employeeList);
+
+    fs.writeFile("output.html", htmlContent, (err) => {
+        if (err) console.log("failed to write file");
+        else console.log("File written");
+    });
+
+}
+
+askUserforManagerInfo();
+
+
 // and to create objects for each team member (using the correct classes as blueprints!)
 
 // After the user has input all employees desired, call the `render` function (required
